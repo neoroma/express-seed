@@ -1,6 +1,8 @@
 import express from 'express'
 import bp from 'body-parser'
 import axios from 'axios'
+import { errorHandler } from './util/error-handler.js'
+import { BadRequestError } from './BadRequestError.js'
 
 const app = express()
 const port = process.env.PORT || 3015
@@ -17,13 +19,6 @@ app.post('/message', ({ body }, res) => {
   })
 })
 
-const errorHandler = (res) => (error) => {
-  const {
-    response: { status = 400 },
-  } = error
-  res.status(status).json({ error: error.toString(), source: 'Error catcher level 1' })
-}
-
 app.post('/todos', async ({ body }, res, next) => {
   const { id } = body
   const response = await axios.get(`https://jsonplaceholder.typicode.com/todos/${id}`).catch(next)
@@ -32,6 +27,13 @@ app.post('/todos', async ({ body }, res, next) => {
     const { data } = response
     res.json(data)
   }
+})
+
+app.get('/not-found', (_, res) => res.status(404).send('This thing is not found'))
+
+app.get('*', function (req, res, next) {
+  const error = new Error(`${req.ip} tried to access ${req.originalUrl}`)
+  next(new BadRequestError(error, 301))
 })
 
 app.use((error, req, res, next) => {
