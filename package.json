@@ -5,13 +5,18 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "serve": "node ./src/index.js"
+    "serve": "node ./src/index.js",
+    "nodemon": "nodemon PORT=3016 ./src/index.js",
+    "ndb": "ndb node ./src/index.js"
   },
   "dependencies": {
+    "axios": "^0.19.2",
     "body-parser": "^1.19.0",
     "express": "^4.17.1"
   },
   "devDependencies": {
+    "ndb": "^1.1.5",
+    "nodemon": "^2.0.4",
     "prettier": "^2.0.5"
   }
 }
