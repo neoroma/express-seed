@@ -21,18 +21,21 @@ const errorHandler = (res) => (error) => {
   const {
     response: { status = 400 },
   } = error
-  res.status(status).json({ error: error.toString() })
+  res.status(status).json({ error: error.toString(), source: 'Error catcher level 1' })
 }
 
-app.post('/todos', async ({ body }, res) => {
+app.post('/todos', async ({ body }, res, next) => {
   const { id } = body
+  const response = await axios.get(`https://jsonplaceholder.typicode.com/todos/${id}`).catch(next)
 
-  try {
-    const { data } = await axios.get(`https://jsonplaceholder.typicode.com/todos/${id}`)
+  if (response) {
+    const { data } = response
     res.json(data)
-  } catch (error) {
-    errorHandler(res)(error)
   }
+})
+
+app.use((error, req, res, next) => {
+  return errorHandler(res)(error)
 })
 
 app.listen(port, () => console.log(`Example app listening at http://localhost:${port}`))
